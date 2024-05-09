@@ -1,13 +1,4 @@
-var canvas = document.getElementById('gameCanvas'),
-context = canvas.getContext('2d');
-
-make_base();
-
-function make_base()
-{
-  base_image = new Image();
-  base_image.src = 'img/board.svg';
-  base_image.onload = function(){
-    context.drawImage(base_image, 0, 0);
-  }
-}
+const canvas = document.getElementById("myCanvas");
+const ctx = canvas.getContext("2d");
+const img = document.getElementById("board");
+ctx.drawImage(img, 0, 0);
