@@ -9,4 +9,23 @@
     margin: 4px 2px;
     cursor: pointer;
 }
+button:hover {
+    transform: scale(1.2);
+}
 .button1 {background-color: #04AA6D;}
+
+
+
+
+
+
+h1{
+    text-align: center;
+    text-transform: uppercase;
+    color: rgb(255, 255, 4);
+    font-family: "Avant Garde", Avantgarde, "Century Gothic", CenturyGothic, AppleGothic, sans-serif; font-size: 36px; font-style: normal; font-variant: normal; font-weight: 700; line-height: 26.4px;
+}
+h1 span{
+    background-color: rgb(211, 42, 0);
+}
+

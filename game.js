@@ -16,21 +16,22 @@ window.onload = function () {
     canvas.height = window.innerHeight * .95;
     var centerX = canvas.width / 2;
     var centerY = canvas.height / 2;
-    var radius = 40;
-    ctx.beginPath();
-    ctx.arc(100, 75, 50, 0, 2 * Math.PI);
-    ctx.stroke();
 };
 function click() {
     var centerX = canvas.width / 2;
     var centerY = canvas.height / 2;
-    var radius = 40;
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(50, 50, 50, 0, 2 * Math.PI);
-    ctx.stroke();
+
+
+    let arr = [];
+    let row = 6;
+    let col = 7;
+    // Loop to initialize 2D array elements.
+    for (let i = 0; i < row; i++) {
+        gfg[i] = [];
+        for (let j = 0; j < col; j++) {
+            gfg[i][j] = false;
+        }
+    }
 }
 
 
