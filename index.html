@@ -11,7 +11,6 @@
   <div id="game-table">
   </div>
 </div>
-.........................................................................................................................................................................................
 <style>
   body{
     background-color: coral;
@@ -144,354 +143,928 @@
 </style>
 
 <script>let gameBoard = new Array();
-  let board = document.getElementById("game-table");
-  let currentCol;
-  let currentRow;
-  let currentPlayer = 1;
-  let id = 1;
-  var isonePlayer;
-  /*
-  let buttons = document.querySelectorAll('.button');
-  
-          buttons.forEach(button => {
-              button.addEventListener('click', () => {
-              if(button.classList.contains('1 player'))
-              {console.log('bal;ls')}
-                  button.classList.add('hidden');
-                  document.getElementById("options-container").style.display = "none";
-                  newgame();
-              });
-          });
-  */
+let board = document.getElementById("game-table");
+let currentCol;
+let currentRow;
+let currentPlayer = 1;
+let id = 1;
+var isonePlayer;
+/*
+let buttons = document.querySelectorAll('.button');
 
-  let onePlayer = document.getElementById('p1');
-  onePlayer.addEventListener("click", function () {
-    onePlayer.classList.add('hidden');
-    document.getElementById("options-container").style.display = "none";
-    newgame();
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+            if(button.classList.contains('1 player'))
+            {console.log('bal;ls')}
+                button.classList.add('hidden');
+                document.getElementById("options-container").style.display = "none";
+                newgame(); 
+            });
+        });
+*/
 
-  });
-  let twoPlayer = document.getElementById('p2');
-  twoPlayer.addEventListener("click", function () {
-    onePlayer.classList.add('hidden');
-    document.getElementById("options-container").style.display = "none";
-    newgame2p();
-  });
-  // newgame();
+let onePlayer = document.getElementById('p1');
+onePlayer.addEventListener("click", function() {
+  onePlayer.classList.add('hidden');
+  document.getElementById("options-container").style.display = "none";
+  newgame();
 
-  function newgame() {
-    prepareField();
-    isonePlayer = true;
-    placeDisc(1);
-  }
+});
+let twoPlayer = document.getElementById('p2');
+twoPlayer.addEventListener("click", function() {
+  onePlayer.classList.add('hidden');
+  document.getElementById("options-container").style.display = "none";
+  newgame2p();
+});
+// newgame(); 
 
-  function newgame2p() {
-    prepareField();
-    isonePlayer = false;
-    placeDisc(1);
+function newgame() {
+  prepareField();
+  isonePlayer = true;
+  placeDisc(1);
+}
+
+function newgame2p() {
+  prepareField();
+  isonePlayer = false;
+  placeDisc(1);
 
 
-  }
+}
 
-  function checkForVictory(row, col) {
-    if (getAdj(row, col, 0, 1) + getAdj(row, col, 0, -1) > 2) {
+function checkForVictory(row, col) {
+  if (getAdj(row, col, 0, 1) + getAdj(row, col, 0, -1) > 2) {
+    return true;
+  } else {
+    if (getAdj(row, col, 1, 0) > 2) {
       return true;
     } else {
-      if (getAdj(row, col, 1, 0) > 2) {
+      if (getAdj(row, col, -1, 1) + getAdj(row, col, 1, -1) > 2) {
         return true;
       } else {
-        if (getAdj(row, col, -1, 1) + getAdj(row, col, 1, -1) > 2) {
+        if (getAdj(row, col, 1, 1) + getAdj(row, col, -1, -1) > 2) {
           return true;
         } else {
-          if (getAdj(row, col, 1, 1) + getAdj(row, col, -1, -1) > 2) {
-            return true;
-          } else {
-            return false;
-          }
+          return false;
         }
       }
     }
   }
+}
 
-  function getAdj(row, col, row_inc, col_inc) {
-    if (cellVal(row, col) == cellVal(row + row_inc, col + col_inc)) {
-      return 1 + getAdj(row + row_inc, col + col_inc, row_inc, col_inc);
+ class easyAi {
+  checkForMoveVictory() {
+  if (!checkForVictory(currentRow, currentCol)) {
+    placeDisc(3 - currentPlayer);
+  } else {
+    var whoWon = currentPlayer == 2 ? 'Computer' : 'Player';
+    placeDisc(3 - currentPlayer);
+    alert(whoWon + " win!");
+    board.innerHTML = "";
+    if (isonePlayer) {
+      newgame();
     } else {
-      return 0;
+      newgame2p();
+    }
+
+  }
+}
+ nextOpen(col, player) {
+  for (var i = 0; i < 6; i++) {
+    if (gameBoard[i][col] != 0) {
+      break;
+    }
+  }
+  gameBoard[i - 1][col] = player;
+  return i - 1;
+}
+  winningMove(piece, board) {
+  const ROW_COUNT = 6;
+  const COL_COUNT = 7;
+  // Check horizontal locations for win
+  for (let c = 0; c < COL_COUNT - 3; c++) {
+    for (let r = 0; r < ROW_COUNT; r++) {
+      if (board[r][c] === piece &&
+        board[r][c + 1] === piece &&
+        board[r][c + 2] === piece &&
+        board[r][c + 3] === piece) {
+        return true;
+      }
     }
   }
 
-  function cellVal(row, col) {
-    if (gameBoard[row] == undefined || gameBoard[row][col] == undefined) {
-      return -1;
-
-    } else {
-      return gameBoard[row][col];
-
+  // Check vertical locations for win
+  for (let c = 0; c < COL_COUNT; c++) {
+    for (let r = 0; r < ROW_COUNT - 3; r++) {
+      if (board[r][c] === piece &&
+        board[r + 1][c] === piece &&
+        board[r + 2][c] === piece &&
+        board[r + 3][c] === piece) {
+        return true;
+      }
     }
   }
 
-  function firstFreeRow(col, player) {
-    for (var i = 0; i < 6; i++) {
-      if (gameBoard[i][col] != 0) {
+  // Check positive diagonal locations for win
+  for (let c = 0; c < COL_COUNT - 3; c++) {
+    for (let r = 0; r < ROW_COUNT - 3; r++) {
+      if (board[r][c] === piece &&
+        board[r + 1][c + 1] === piece &&
+        board[r + 2][c + 2] === piece &&
+        board[r + 3][c + 3] === piece) {
+        return true;
+      }
+    }
+  }
+
+  // Check negative diagonal locations for win
+  for (let c = 0; c < COL_COUNT - 3; c++) {
+    for (let r = 3; r < ROW_COUNT; r++) {
+      if (board[r][c] === piece &&
+        board[r - 1][c + 1] === piece &&
+        board[r - 2][c + 2] === piece &&
+        board[r - 3][c + 3] === piece) {
+        return true;
+      }
+    }
+  }
+
+  return false; // No winning move found
+}
+ 
+ } 
+ 
+ class minimax extends easyAi {
+ 
+  isTerminalNode(board) {
+  if (super.winningMove(1, board) || winningMove(2, board)) {
+    return true;
+  }
+  
+  return false;
+
+}
+
+miniMax(board, deepness, alpha, beta, maximisingPlayer) {
+  let depth = deepness;
+  let isTerminal = isTerminalNode(board);
+  let validLocations = possibleColumns(board);
+
+let column = 0;
+
+  if (depth === 0 || isTerminal) {
+    if (isTerminal) {
+      // Weight the bot winning really high
+      if (winningMove(board, 2)) { // botPiece is assigned as 2
+        return [null, 9999999];
+      }
+      // Weight the human winning really low
+      else if (winningMove(board, 1)) { // playerPiece is assigned as 1
+        return [null, -9999999];
+      } else { // No more valid moves
+        return [null, 0];
+      }
+    }
+    // Return the bot's score
+    else {
+      return [null, scorePosition( 2, board)]; // botPiece is assigned as 2
+    }
+  }
+
+  if (maximisingPlayer) {
+    let value = -9999999;
+
+    for (let i = 0; i < validLocations.length; i++) {
+      let row = getNextOpenRow(i, board);
+      let boardCopy = deepCopy(board); // Make a copy to avoid modifying original
+      boardCopy[row][i] = 2; // botPiece is assigned as 2
+      let newScore = miniMax(boardCopy, depth - 1, alpha, beta, false)[1];
+
+      if (newScore > value) {
+        value = newScore;
+        column = i;
+        alpha = Math.max(alpha, value);
+        if (alpha >= beta) {
+          break;
+        }
+      }
+    }
+
+    return [column, value];
+  } else {
+    let value = 9999999;
+    for (let col = 0; col < validLocations.length; col++) {
+      let row = getNextOpenRow(col, board);
+      let boardCopy = deepCopy(board); // Make a copy to avoid modifying original
+      boardCopy[row][col] = 1; // playerPiece is assigned as 1
+      let newScore = miniMax(boardCopy, depth - 1, alpha, beta, true)[1];
+
+      if (newScore < value) {
+        value = newScore;
+        column = col;
+        alpha = Math.max(alpha, value);
+        if (alpha >= beta) {
+          break;
+        }
+      }
+    }
+
+    return [column, value];
+  }
+}
+ 
+ }
+ 
+ 
+ 
+function getAdj(row, col, row_inc, col_inc) {
+  if (cellVal(row, col) == cellVal(row + row_inc, col + col_inc)) {
+    return 1 + getAdj(row + row_inc, col + col_inc, row_inc, col_inc);
+  } else {
+    return 0;
+  }
+}
+
+function cellVal(row, col) {
+  if (gameBoard[row] == undefined || gameBoard[row][col] == undefined) {
+    return -1;
+
+  } else {
+    return gameBoard[row][col];
+
+  }
+}
+
+function firstFreeRow(col, player) {
+  for (var i = 0; i < 6; i++) {
+    if (gameBoard[i][col] != 0) {
+      break;
+    }
+  }
+  gameBoard[i - 1][col] = player;
+  return i - 1;
+}
+
+function possibleColumns() {
+  var moves_array = new Array();
+  for (var i = 0; i < 7; i++) {
+    if (gameBoard[0][i] == 0) {
+      moves_array.push(i);
+    }
+  }
+  return moves_array;
+}
+
+function think() {
+  var possibleMoves = possibleColumns();
+  var aiMoves = new Array();
+  var blocked;
+  var bestBlocked = 0;
+ 
+
+  for (var i = 0; i < possibleMoves.length; i++) {
+    for (var j = 0; j < 6; j++) {
+      if (gameBoard[j][possibleMoves[i]] != 0) {
         break;
       }
     }
-    gameBoard[i - 1][col] = player;
-    return i - 1;
+    
+ 
+  
+   // console.log(deepCopy(gameBoard));
+    gameBoard[j - 1][possibleMoves[i]] = 1;
+    blocked = getAdj(j - 1, possibleMoves[i], 0, 1) + getAdj(j - 1, possibleMoves[i], 0, -1);
+    blocked = Math.max(blocked, getAdj(j - 1, possibleMoves[i], 1, 0));
+    blocked = Math.max(blocked, getAdj(j - 1, possibleMoves[i], -1, 1));
+    blocked = Math.max(blocked, getAdj(j - 1, possibleMoves[i], 1, 1) + getAdj(j - 1, possibleMoves[i], -1, -1));
+
+    if (blocked >= bestBlocked) {
+      if (blocked > bestBlocked) {
+        bestBlocked = blocked;
+        aiMoves = new Array();
+      }
+      aiMoves.push(possibleMoves[i]);
+    }
+    
+    if(winningMove(2, gameBoard))
+    {
+ aiMoves = new Array();
+aiMoves.push(possibleMoves[i]);
+bestBlocked = Infinity;
+blocked = -Infinity;
+
+    }    
+    gameBoard[j - 1][possibleMoves[i]] = 0;
   }
 
-  function possibleColumns() {
-    var moves_array = new Array();
-    for (var i = 0; i < 7; i++) {
-      if (gameBoard[0][i] == 0) {
-        moves_array.push(i);
+  return aiMoves;
+}
+
+function Disc(player) {
+  this.player = player;
+
+  this.color = player == 1 ? 'red' : 'yellow';
+  this.id = id.toString();
+  id++;
+
+
+  this.addToScene = function() {
+    if (isonePlayer) {
+      board.innerHTML += '<div id="d' + this.id + '" class="disc ' + this.color + '"></div>';
+      if (currentPlayer == 2) {
+        //computer move
+        
+        
+        currentCol = think()[0];
+        document.getElementById('d' + this.id).style.left = (14 + 60 * currentCol) + "px";
+        dropDisc(this.id, currentPlayer);
+       
+       //console.log(winningMove(currentPlayer, gameBoard));
+
+        //console.log(isonePlayer);
+      }
+    } else {
+
+      board.innerHTML += '<div id="d' + this.id + '" class="disc ' + this.color + '"></div>';
+      if (currentPlayer == 2) {
+        currentPlayer = 1;
+       //console.log(isTerminalNode(gameBoard));
+       //console.log(possibleColumns(gameBoard));
+         //console.log(miniMax(gameBoard, 4, -9999999, 9999999, true));
+      } else {
+        currentPlayer = 1;
+      }
+
+    }
+   
+
+  }
+
+
+  var $this = this;
+  document.onmousemove = function(evt) {
+    if (currentPlayer == 1) {
+      currentCol = Math.floor((evt.clientX - board.offsetLeft) / 60);
+      if (currentCol < 0) {
+        currentCol = 0;
+      }
+      if (currentCol > 6) {
+        currentCol = 6;
+      }
+      document.getElementById('d' + $this.id).style.left = (14 + 60 * currentCol) + "px";
+      document.getElementById('d' + $this.id).style.top = "-55px";
+    }
+  }
+  document.onload = function(evt) {
+    if (currentPlayer == 1) {
+      currentCol = Math.floor((evt.clientX - board.offsetLeft) / 60);
+      if (currentCol < 0) {
+        currentCol = 0;
+      }
+      if (currentCol > 6) {
+        currentCol = 6;
+      }
+      document.getElementById('d' + $this.id).style.left = (14 + 60 * currentCol) + "px";
+      document.getElementById('d' + $this.id).style.top = "-55px";
+    }
+  }
+
+  document.onclick = function(evt) {
+    if (currentPlayer == 1) {
+      if (possibleColumns().indexOf(currentCol) != -1) {
+        dropDisc($this.id, $this.player);
       }
     }
-    return moves_array;
+  }
+}
+
+function dropDisc(cid, player) {
+  currentRow = firstFreeRow(currentCol, player);
+  moveit(cid, (14 + currentRow * 60));
+  currentPlayer = player;
+  checkForMoveVictory();
+}
+
+function checkForMoveVictory() {
+  if (!checkForVictory(currentRow, currentCol)) {
+    placeDisc(3 - currentPlayer);
+  } else {
+    var whoWon = currentPlayer == 2 ? 'Computer' : 'Player';
+    placeDisc(3 - currentPlayer);
+    alert(whoWon + " win!");
+    board.innerHTML = "";
+    if (isonePlayer) {
+      newgame();
+    } else {
+      newgame2p();
+    }
+
+  }
+}
+
+function placeDisc(player) {
+  currentPlayer = player;
+  var disc = new Disc(player);
+  disc.addToScene();
+
+}
+
+function prepareField() {
+  for (let i = 0; i < 6; i++) {
+    gameBoard[i] = {};
+    for (let j = 0; j < 7; j++) {
+      gameBoard[i][j] = 0;
+    }
+  }
+}
+
+function moveit(who, where) {
+  document.getElementById('d' + who).style.top = where + 'px';
+}
+
+
+
+
+
+
+
+
+function getNextOpenRow(board, col) {
+  for (var i = 0; i < 6; i++) {
+    if (board[i][col] != 0) {
+      return i - 1;
+
+    }
   }
 
-  function think() {
-    var possibleMoves = possibleColumns();
-    var aiMoves = new Array();
-    var blocked;
-    var bestBlocked = 0;
 
-    for (var i = 0; i < possibleMoves.length; i++) {
-      for (var j = 0; j < 6; j++) {
-        if (gameBoard[j][possibleMoves[i]] != 0) {
+}
+
+function evaluateWindow(window, piece) {
+  let oppPiece;
+  let score = 0;
+  let count = 0;
+  if (piece === 1) {
+    oppPiece = 2;
+  } else {
+    oppPiece = 1;
+  }
+
+  if (window.filter(x => x === piece).length === 4 && window.filter(x => x === 0).length === 1) {
+    score += 100;
+  } else if (window.filter(x => x === piece).length === 3 && window.filter(x => x === 0).length === 1) {
+    score += 5;
+  }
+  // Make connecting 2 third priority
+  else if (window.filter(x => x === piece).length === 2 && window.filter(x => x === 0).length === 2) {
+    score += 2;
+  }
+  // Prioritise blocking an opponent
+  // Minimax makes this less important
+  if (window.filter(x => x === oppPiece).length === 3 && window.filter(x => x === 0).length === 1) {
+    score -= 4;
+  }
+
+  return score;
+
+
+
+  // repeat for all values
+}
+
+function scorePosition(piece, board) {
+  let score = 0;
+  //score center 
+
+  const centerArray = [];
+  for (let i = 0; i < 6; i++) {
+    centerArray.push(board[i][3])
+    //console.log(centerArray)  
+  }
+  let centerCount = 0;
+  for (let i = 0; i < centerArray.length; i++) {
+    if (centerArray[i] === piece) {
+      centerCount++;
+    }
+  }
+  score = centerCount * 3;
+
+  //center done
+
+  //score horizontal
+  for (let r = 0; r < 6; r++) {
+    const rowArray = board[r];
+    // console.log(rowArray)
+    for (let c = 0; c < 6 - 3; c++) {
+      const window = [];
+      for (let i = c; i < c + 4; i++) {
+        window.push(rowArray[i]);
+      }
+      score += evaluateWindow(window, piece);
+    }
+  }
+  // horizontal done
+
+  //score vertical
+  for (let col = 0; col < 7; col++) {
+    const colArray = [];
+    for (let row = 0; row < 6; row++) {
+      colArray.push(board[row][col]);
+    }
+    for (let c = 0; c < 6 - 3; c++) {
+      const window = [];
+      for (let i = c; i < c + 4; i++) {
+        window.push(colArray[i]);
+      }
+      score += evaluateWindow(window, piece);
+    }
+    console.log(score);
+  }
+  //vertical done
+
+  //score positive diag
+  for (let startCol = 0; startCol < 7; startCol++) {
+    let isOutOfBounds = false;
+    let colCount = startCol;
+    let rowCount = 0;
+    const diagArray = [];
+    while (!isOutOfBounds) {
+      if (colCount < 7 && rowCount < 6) {
+
+        diagArray.push(board[rowCount][colCount]);
+
+        rowCount++;
+        colCount++;
+
+      } else {
+        isOutOfBounds = true;
+      }
+
+    }
+    if (diagArray.length >= 4) {
+      console.log(diagArray)
+
+      //let startIndex = 0;
+      for (let i = 0; i < diagArray.length - 3; i++) {
+        const window = [];
+        for (let f = 0; f < 4; f++) {
+          window.push(diagArray[f + i])
+        }
+        //  console.log(window)
+        score += evaluateWindow(window, piece);
+        console.log(score);
+      }
+
+    }
+  }
+  for (let startCol = 6; startCol > 0; startCol--) {
+    let isOutOfBounds = false;
+    let colCount = startCol;
+    let rowCount = 5;
+    const diagArray = [];
+    while (!isOutOfBounds) {
+      if (colCount > 0 && rowCount > 0) {
+
+        diagArray.push(board[rowCount][colCount]);
+
+        rowCount--;
+        colCount--;
+
+      } else {
+        isOutOfBounds = true;
+      }
+
+    }
+    if (diagArray.length >= 4) {
+      console.log(diagArray)
+
+      //let startIndex = 0;
+      for (let i = 0; i < diagArray.length - 3; i++) {
+        const window = [];
+        for (let f = 0; f < 4; f++) {
+          window.push(diagArray[f + i])
+        }
+        //  console.log(window)
+        score += evaluateWindow(window, piece);
+        // console.log(score);
+      }
+
+    }
+  }
+  //postivie diag done
+
+  //score negative diagonals
+  for (let startCol = 6; startCol >= 0; startCol--) {
+    let isOutOfBounds = false;
+    let colCount = startCol;
+    let rowCount = 0;
+    const diagArray = [];
+    while (!isOutOfBounds) {
+      if (colCount >= 0 && rowCount < 6) {
+
+        diagArray.push(board[rowCount][colCount]);
+
+        rowCount++;
+        colCount--;
+
+      } else {
+        isOutOfBounds = true;
+      }
+
+    }
+    if (diagArray.length >= 4) {
+      console.log(diagArray)
+
+      //let startIndex = 0;
+      for (let i = 0; i < diagArray.length - 3; i++) {
+        const window = [];
+        for (let f = 0; f < 4; f++) {
+          window.push(diagArray[f + i])
+        }
+        //  console.log(window)
+        score += evaluateWindow(window, piece);
+        console.log(score);
+      }
+
+    }
+  }
+  for (let startCol = 2; startCol < 7; startCol++) {
+    let isOutOfBounds = false;
+    let colCount = startCol;
+    let rowCount = 5;
+    const diagArray = [];
+    while (!isOutOfBounds) {
+      if (colCount < 7 && rowCount > 0) {
+
+        diagArray.push(board[rowCount][colCount]);
+
+        rowCount--;
+        colCount++;
+
+      } else {
+        isOutOfBounds = true;
+      }
+
+    }
+    if (diagArray.length >= 4) {
+      console.log(diagArray);
+
+      //let startIndex = 0;
+      for (let i = 0; i < diagArray.length - 3; i++) {
+        const window = [];
+        for (let f = 0; f < 4; f++) {
+          window.push(diagArray[f + i])
+        }
+
+
+        score += evaluateWindow(window, piece);
+
+      }
+
+    }
+  }
+  //score negative diagonals done
+
+}
+
+function winningMove(piece, board) {
+  const ROW_COUNT = 6;
+  const COL_COUNT = 7;
+  // Check horizontal locations for win
+  for (let c = 0; c < COL_COUNT - 3; c++) {
+    for (let r = 0; r < ROW_COUNT; r++) {
+      if (board[r][c] === piece &&
+        board[r][c + 1] === piece &&
+        board[r][c + 2] === piece &&
+        board[r][c + 3] === piece) {
+        return true;
+      }
+    }
+  }
+
+  // Check vertical locations for win
+  for (let c = 0; c < COL_COUNT; c++) {
+    for (let r = 0; r < ROW_COUNT - 3; r++) {
+      if (board[r][c] === piece &&
+        board[r + 1][c] === piece &&
+        board[r + 2][c] === piece &&
+        board[r + 3][c] === piece) {
+        return true;
+      }
+    }
+  }
+
+  // Check positive diagonal locations for win
+  for (let c = 0; c < COL_COUNT - 3; c++) {
+    for (let r = 0; r < ROW_COUNT - 3; r++) {
+      if (board[r][c] === piece &&
+        board[r + 1][c + 1] === piece &&
+        board[r + 2][c + 2] === piece &&
+        board[r + 3][c + 3] === piece) {
+        return true;
+      }
+    }
+  }
+
+  // Check negative diagonal locations for win
+  for (let c = 0; c < COL_COUNT - 3; c++) {
+    for (let r = 3; r < ROW_COUNT; r++) {
+      if (board[r][c] === piece &&
+        board[r - 1][c + 1] === piece &&
+        board[r - 2][c + 2] === piece &&
+        board[r - 3][c + 3] === piece) {
+        return true;
+      }
+    }
+  }
+
+  return false; // No winning move found
+}
+
+function isTerminalNode(board) {
+  if (winningMove(1, board) || winningMove(2, board)) {
+    return true;
+  }
+  
+  return false;
+
+}
+/*
+function miniMax(board, deepness, alpaha, botta, maximisingPlayer) {
+  let depth = deepness;
+  let alpha = alpaha;
+  let beta = botta;
+  let botPiece = 2;
+  let playerPiece = 1;
+  let isTerminal = isTerminalNode(board);
+  let returnArray = [];
+  let validLocations = possibleColumns(board)
+  let column = 0;
+  
+  
+  if (depth === 0 || isTerminal) {
+    if (isTerminal) {
+      // Weight the bot winning really high
+      if (winningMove(board, botPiece)) {
+        returnArray.push(null);
+        returnArray.push(9999999);
+        return (returnArray);
+      }
+      // Weight the human winning really low
+      else if (winningMove(board, playerPiece)) {
+        returnArray.push(null);
+        returnArray.push(-9999999);
+        return (returnArray);
+      } else { // No more valid moves
+        returnArray.push(null)
+        returnArray.push(0)
+      }
+      return (returnArray);
+
+    }
+    // Return the bot's score
+    else {
+      returnArray.push(null)
+      returnArray.push(scorePosition(board, botPiece))
+      return (returnArray);
+    }
+    9
+  }
+
+  if (maximisingPlayer) {
+
+    let value = -9999999;
+
+
+    for (let i = 0; i < validLocations.length; i++) {
+      let row = getNextOpenRow(i, board);
+      let boardCopy = board;
+      boardCopy[row][i] = botPiece;
+      let newScore = minimax(boardCopy, depth - 1, alpha, beta, false)[1];
+      if (newScore > value) {
+        value = newScore;
+        // Make 'column' the best scoring column we can get
+        column = i;
+        alpha = Math.max(alpha, value);
+        if (alpha >= beta) {
           break;
         }
-
-
       }
 
-      // console.log(gameBoard[0][6]);
-      //console.log(gameBoard[0][0])
-
-      gameBoard[j - 1][possibleMoves[i]] = 1;
-      blocked = getAdj(j - 1, possibleMoves[i], 0, 1) + getAdj(j - 1, possibleMoves[i], 0, -1);
-      blocked = Math.max(blocked, getAdj(j - 1, possibleMoves[i], 1, 0));
-      blocked = Math.max(blocked, getAdj(j - 1, possibleMoves[i], -1, 1));
-      blocked = Math.max(blocked, getAdj(j - 1, possibleMoves[i], 1, 1) + getAdj(j - 1, possibleMoves[i], -1, -1));
-
-      if (blocked >= bestBlocked) {
-        if (blocked > bestBlocked) {
-          bestBlocked = blocked;
-          aiMoves = new Array();
-        }
-        aiMoves.push(possibleMoves[i]);
-      }
-      gameBoard[j - 1][possibleMoves[i]] = 0;
     }
-
-    return aiMoves;
-  }
-
-  function Disc(player) {
-    this.player = player;
-
-    this.color = player == 1 ? 'red' : 'yellow';
-    this.id = id.toString();
-    id++;
-
-
-    this.addToScene = function () {
-      if (isonePlayer) {
-        board.innerHTML += '<div id="d' + this.id + '" class="disc ' + this.color + '"></div>';
-        if (currentPlayer == 2) {
-          //computer move
-          var possibleMoves = think();
-          var cpuMove = Math.floor(Math.random() * possibleMoves.length);
-          currentCol = possibleMoves[cpuMove];
-          document.getElementById('d' + this.id).style.left = (14 + 60 * currentCol) + "px";
-          dropDisc(this.id, currentPlayer);
-          // scorePosition(currentPlayer);
-
-          //console.log(isonePlayer);
-        }
-      } else {
-
-        board.innerHTML += '<div id="d' + this.id + '" class="disc ' + this.color + '"></div>';
-        if (currentPlayer == 2) {
-          currentPlayer = 1;
-        } else {
-          currentPlayer = 1;
-        }
-
-      }
-      // scorePosition(currentPlayer, gameBoard);
-
-    }
-
-
-    var $this = this;
-    document.onmousemove = function (evt) {
-      if (currentPlayer == 1) {
-        currentCol = Math.floor((evt.clientX - board.offsetLeft) / 60);
-        if (currentCol < 0) {
-          currentCol = 0;
-        }
-        if (currentCol > 6) {
-          currentCol = 6;
-        }
-        document.getElementById('d' + $this.id).style.left = (14 + 60 * currentCol) + "px";
-        document.getElementById('d' + $this.id).style.top = "-55px";
-      }
-    }
-    document.onload = function (evt) {
-      if (currentPlayer == 1) {
-        currentCol = Math.floor((evt.clientX - board.offsetLeft) / 60);
-        if (currentCol < 0) {
-          currentCol = 0;
-        }
-        if (currentCol > 6) {
-          currentCol = 6;
-        }
-        document.getElementById('d' + $this.id).style.left = (14 + 60 * currentCol) + "px";
-        document.getElementById('d' + $this.id).style.top = "-55px";
-      }
-    }
-
-    document.onclick = function (evt) {
-      if (currentPlayer == 1) {
-        if (possibleColumns().indexOf(currentCol) != -1) {
-          dropDisc($this.id, $this.player);
-        }
-      }
-    }
-  }
-
-  function dropDisc(cid, player) {
-    currentRow = firstFreeRow(currentCol, player);
-    moveit(cid, (14 + currentRow * 60));
-    currentPlayer = player;
-    checkForMoveVictory();
-  }
-
-  function checkForMoveVictory() {
-    if (!checkForVictory(currentRow, currentCol)) {
-      placeDisc(3 - currentPlayer);
-    } else {
-      var whoWon = currentPlayer == 2 ? 'Computer' : 'Player';
-      placeDisc(3 - currentPlayer);
-      alert(whoWon + " win!");
-      board.innerHTML = "";
-      if (isonePlayer) { newgame(); }
-      else { newgame2p(); }
-
-    }
-  }
-
-  function placeDisc(player) {
-    currentPlayer = player;
-    var disc = new Disc(player);
-    disc.addToScene();
+    returnArray.push(column)
+    returnArray.push(value)
+    return returnArray;
 
   }
-
-  function prepareField() {
-    for (let i = 0; i < 6; i++) {
-      gameBoard[i] = {};
-      for (let j = 0; j < 7; j++) {
-        gameBoard[i][j] = 0;
+  
+  else{
+  let value = 9999999;
+  for(let col =0; col<validLocations.length; col++)
+  {
+   let row = getNextOpenRow(col, board);
+      let boardCopy = board;
+      boardCopy[row][col] = playerPiece;
+      let newScore = minimax(boardCopy, depth - 1, alpha, beta, true)[1];
+      if (newScore > value) {
+        value = newScore;
+        // Make 'column' the best scoring column we can get
+        column = col;
+        alpha = Math.max(alpha, value);
+        if (alpha >= beta) {
+          break;
+        }
       }
-    }
-  }
 
-  function moveit(who, where) {
-    document.getElementById('d' + who).style.top = where + 'px';
+    }
+    returnArray.push(column)
+    returnArray.push(value)
+    return returnArray;
+		
+  
+  
+  
+  
+  
+  
+  
+  
   }
 
 
+}
+*/
+function deepCopy(arr) {
+  return arr.map(row => Array.isArray(row) ? deepCopy(row) : row);
+}
 
 
+function miniMax(board, deepness, alpha, beta, maximisingPlayer) {
+  let depth = deepness;
+  let isTerminal = isTerminalNode(board);
+  let validLocations = possibleColumns(board);
 
+let column = 0;
 
-
-
-
-
-  function evaluateWindow(window, piece) {
-    let oppPiece;
-    let score = 0;
-    let count = 0;
-    if (piece === 1) {
-      oppPiece = 2;
+  if (depth === 0 || isTerminal) {
+    if (isTerminal) {
+      // Weight the bot winning really high
+      if (winningMove(board, 2)) { // botPiece is assigned as 2
+        return [null, 9999999];
+      }
+      // Weight the human winning really low
+      else if (winningMove(board, 1)) { // playerPiece is assigned as 1
+        return [null, -9999999];
+      } else { // No more valid moves
+        return [null, 0];
+      }
     }
-    else { oppPiece = 1; }
-
-    if (window.filter(x => x === piece).length === 4 && window.filter(x => x === 0).length === 1) {
-      score += 100;
+    // Return the bot's score
+    else {
+      return [null, scorePosition( 2, board)]; // botPiece is assigned as 2
     }
-
-    else if (window.filter(x => x === piece).length === 3 && window.filter(x => x === 0).length === 1) {
-      score += 5;
-    }
-    // Make connecting 2 third priority
-    else if (window.filter(x => x === piece).length === 2 && window.filter(x => x === 0).length === 2) {
-      score += 2;
-    }
-    // Prioritise blocking an opponent's winning move (but not over bot winning)
-    // Minimax makes this less important
-    if (window.filter(x => x === oppPiece).length === 3 && window.filter(x => x === 0).length === 1) {
-      score -= 4;
-    }
-
-    return score;
-
-
-
-    // repeat for all values
   }
 
-  function scorePosition(piece, board) {
-    score = 0;
-    //score center
-    const centerArray = [];
-    for (let i = 0; i < 6; i++) {
-      centerArray.push(board[i][3])
-      //console.log(centerArray)  
-    }
-    let centerCount = 0;
-    for (let i = 0; i < centerArray.length; i++) {
-      if (centerArray[i] === piece) {
-        centerCount++;
-      }
-    }
-    score = centerCount * 3;
-    //center done
+  if (maximisingPlayer) {
+    let value = -9999999;
 
-    //score horizontal
-    for (let r = 0; r < 6; r++) {
-      const rowArray = board[r];
-      // console.log(rowArray)
-      for (let c = 0; c < 6 - 3; c++) {
-        const window = [];
-        for (let i = c; i < c + 4; i++) {
-          window.push(rowArray[i]);
-        }
-        score += evaluateWindow(window, piece);
-      }
-    }
-    // horizontal done
+    for (let i = 0; i < validLocations.length; i++) {
+      let row = getNextOpenRow(i, board);
+      let boardCopy = deepCopy(board); // Make a copy to avoid modifying original
+      boardCopy[row][i] = 2; // botPiece is assigned as 2
+      let newScore = miniMax(boardCopy, depth - 1, alpha, beta, false)[1];
 
-    //score vertical
-    for (let col = 0; col < 7; col++) {
-      const colArray = [];
-      for (let row = 0; row < 6; row++) {
-        colArray.push(board[row][col]);
-      }
-      for (let c = 0; c < 6 - 3; c++) {
-        const window = [];
-        for (let i = c; i < c + 4; i++) {
-          window.push(colArray[i]);
+      if (newScore > value) {
+        value = newScore;
+        column = i;
+        alpha = Math.max(alpha, value);
+        if (alpha >= beta) {
+          break;
         }
-        score += evaluateWindow(window, piece);
       }
-      console.log(score);
     }
-    //vertical done
-    //score positive diag
+
+    return [column, value];
+  } else {
+    let value = 9999999;
+    for (let col = 0; col < validLocations.length; col++) {
+      let row = getNextOpenRow(col, board);
+      let boardCopy = deepCopy(board); // Make a copy to avoid modifying original
+      boardCopy[row][col] = 1; // playerPiece is assigned as 1
+      let newScore = miniMax(boardCopy, depth - 1, alpha, beta, true)[1];
+
+      if (newScore < value) {
+        value = newScore;
+        column = col;
+        alpha = Math.max(alpha, value);
+        if (alpha >= beta) {
+          break;
+        }
+      }
+    }
+
+    return [column, value];
   }
+}
+
 </script>
